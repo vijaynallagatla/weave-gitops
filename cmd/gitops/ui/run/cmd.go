@@ -22,7 +22,6 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/weaveworks/weave-gitops/cmd/gitops/cmderrors"
-	"github.com/weaveworks/weave-gitops/pkg/helm/watcher"
 	"github.com/weaveworks/weave-gitops/pkg/helm/watcher/cache"
 	"github.com/weaveworks/weave-gitops/pkg/kube"
 	"github.com/weaveworks/weave-gitops/pkg/server"
@@ -142,34 +141,34 @@ func runCmd(cmd *cobra.Command, args []string) error {
 		return fmt.Errorf("could not create client config: %w", err)
 	}
 
-	_, rawClient, err := kube.NewKubeHTTPClientWithConfig(rest, clusterName)
-	if err != nil {
-		return fmt.Errorf("could not create kube http client: %w", err)
-	}
+	// _, rawClient, err := kube.NewKubeHTTPClientWithConfig(rest, clusterName)
+	// if err != nil {
+	// 	return fmt.Errorf("could not create kube http client: %w", err)
+	// }
 
 	profileCache, err := cache.NewCache(options.ProfileCacheLocation)
 	if err != nil {
 		return fmt.Errorf("failed to create cacher: %w", err)
 	}
 
-	profileWatcher, err := watcher.NewWatcher(watcher.Options{
-		KubeClient:                    rawClient,
-		Cache:                         profileCache,
-		MetricsBindAddress:            options.WatcherMetricsBindAddress,
-		HealthzBindAddress:            options.WatcherHealthzBindAddress,
-		NotificationControllerAddress: options.NotificationControllerAddress,
-		WatcherPort:                   options.WatcherPort,
-	})
-	if err != nil {
-		return fmt.Errorf("failed to start the watcher: %w", err)
-	}
+	// profileWatcher, err := watcher.NewWatcher(watcher.Options{
+	// 	KubeClient:                    rawClient,
+	// 	Cache:                         profileCache,
+	// 	MetricsBindAddress:            options.WatcherMetricsBindAddress,
+	// 	HealthzBindAddress:            options.WatcherHealthzBindAddress,
+	// 	NotificationControllerAddress: options.NotificationControllerAddress,
+	// 	WatcherPort:                   options.WatcherPort,
+	// })
+	// if err != nil {
+	// 	return fmt.Errorf("failed to start the watcher: %w", err)
+	// }
 
-	go func() {
-		if err := profileWatcher.StartWatcher(); err != nil {
-			log.Error(err, "failed to start profile watcher")
-			os.Exit(1)
-		}
-	}()
+	// go func() {
+	// 	if err := profileWatcher.StartWatcher(); err != nil {
+	// 		log.Error(err, "failed to start profile watcher")
+	// 		os.Exit(1)
+	// 	}
+	// }()
 
 	profilesConfig := server.NewProfilesConfig(kube.ClusterConfig{
 		DefaultConfig: rest,
