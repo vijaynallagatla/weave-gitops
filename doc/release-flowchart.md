@@ -49,7 +49,7 @@ flowchart TB
     release_merge --> release_tag[tools/tag-release.sh -r]
     release_tag --> release_wait[Wait for release action]
     
-    class npm_ci,tag_release code
+    class release_npm,release_tag code
   end
 
   release_wait --> checkpoint
@@ -64,7 +64,7 @@ flowchart TB
     release_bare_merge --> release_bare_tag[tools/tag-release.sh -mr]
     release_bare_tag --> release_bare_wait[Wait for release action]
     
-    class npm_ci_bare,tag_release_bare code
+    class release_bare_npm,release_bare_tag code
   end
 
   release_bare_wait --> checkpoint
