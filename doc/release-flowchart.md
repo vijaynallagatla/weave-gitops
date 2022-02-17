@@ -75,7 +75,8 @@ flowchart TB
   
   subgraph Docs
     docs_review[Review generated docs PR]
-    docs_review --> docs_merge[Merge docs PR]
+    docs_review --> docs_ci[Wait for CI]
+    docs_ci --> docs_merge[Merge docs PR]
   end
   
   docs_merge --> readme_update
