@@ -31,7 +31,7 @@ export const getNavValue = (
     case "add_kustomization":
     case "kustomization_list":
     case "kustomization":
-      return V2Routes.KustomizationList;
+      return V2Routes.ApplicationList;
 
     case "add_source":
     case "sources":

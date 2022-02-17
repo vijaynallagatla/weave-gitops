@@ -81,6 +81,31 @@ message ListFluxRuntimeObjectsRes {
   repeated Deployment deployments = 1;
 }
 
+message GetReconciledObjectsReq {
+  string   automationName      = 1;
+  string   automationNamespace = 2;
+  enum AutomationType {
+    Kustomization = 0;
+    Helm  = 1;
+  }
+  AutomationType automationKind = 3;
+  repeated GroupVersionKind kinds = 4;
+}
+
+message GetReconciledObjectsRes {
+  repeated UnstructuredObject objects = 1;
+}
+
+
+message GetChildObjectsReq {
+  GroupVersionKind groupVersionKind = 1;
+  string           parentUid        = 2;
+}
+
+message GetChildObjectsRes {
+  repeated UnstructuredObject objects = 1;
+}
+
 service Apps {
   /*
     * AddApplication adds an Application to a cluster via GitOps.
@@ -247,4 +272,18 @@ service Apps {
       get : "/v1/flux_runtime"
     };
   }
+
+  rpc GetReconciledObjects(GetReconciledObjectsReq) returns (GetReconciledObjectsRes) {
+    option (google.api.http) = {
+        post : "/v1/reconciled_objects"
+        body: "*"
+    };
+  };
+
+  rpc GetChildObjects(GetChildObjectsReq) returns (GetChildObjectsRes) {
+    option (google.api.http) = {
+        post : "/v1/child_objects"
+        body: "*"
+    };
+  };
 }

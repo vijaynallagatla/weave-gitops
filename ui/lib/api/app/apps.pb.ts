@@ -7,6 +7,12 @@
 import * as fm from "../applications/fetch.pb"
 import * as Gitops_serverV1Flux from "./flux.pb"
 import * as Gitops_serverV1Source from "./source.pb"
+
+export enum GetReconciledObjectsReqAutomationType {
+  Kustomization = "Kustomization",
+  Helm = "Helm",
+}
+
 export type App = {
   namespace?: string
   name?: string
@@ -68,6 +74,26 @@ export type ListFluxRuntimeObjectsRes = {
   deployments?: Deployment[]
 }
 
+export type GetReconciledObjectsReq = {
+  automationName?: string
+  automationNamespace?: string
+  automationKind?: GetReconciledObjectsReqAutomationType
+  kinds?: Gitops_serverV1Flux.GroupVersionKind[]
+}
+
+export type GetReconciledObjectsRes = {
+  objects?: Gitops_serverV1Flux.UnstructuredObject[]
+}
+
+export type GetChildObjectsReq = {
+  groupVersionKind?: Gitops_serverV1Flux.GroupVersionKind
+  parentUid?: string
+}
+
+export type GetChildObjectsRes = {
+  objects?: Gitops_serverV1Flux.UnstructuredObject[]
+}
+
 export class Apps {
   static AddApp(req: AddAppRequest, initReq?: fm.InitReq): Promise<AddAppResponse> {
     return fm.fetchReq<AddAppRequest, AddAppResponse>(`/v1/namespace/${req["namespace"]}/app`, {...initReq, method: "POST", body: JSON.stringify(req)})
@@ -122,5 +148,11 @@ export class Apps {
   }
   static ListFluxRuntimeObjects(req: ListFluxRuntimeObjectsReq, initReq?: fm.InitReq): Promise<ListFluxRuntimeObjectsRes> {
     return fm.fetchReq<ListFluxRuntimeObjectsReq, ListFluxRuntimeObjectsRes>(`/v1/flux_runtime?${fm.renderURLSearchParams(req, [])}`, {...initReq, method: "GET"})
+  }
+  static GetReconciledObjects(req: GetReconciledObjectsReq, initReq?: fm.InitReq): Promise<GetReconciledObjectsRes> {
+    return fm.fetchReq<GetReconciledObjectsReq, GetReconciledObjectsRes>(`/v1/reconciled_objects`, {...initReq, method: "POST", body: JSON.stringify(req)})
+  }
+  static GetChildObjects(req: GetChildObjectsReq, initReq?: fm.InitReq): Promise<GetChildObjectsRes> {
+    return fm.fetchReq<GetChildObjectsReq, GetChildObjectsRes>(`/v1/child_objects`, {...initReq, method: "POST", body: JSON.stringify(req)})
   }
 }

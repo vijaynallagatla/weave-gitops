@@ -162,6 +162,7 @@ export type UnstructuredObject = {
   namespace?: string
   uid?: string
   status?: string
+  conditions?: Condition[]
 }
 
 export type GetReconciledObjectsReq = {
@@ -178,6 +179,7 @@ export type GetReconciledObjectsRes = {
 export type GetChildObjectsReq = {
   groupVersionKind?: GroupVersionKind
   parentUid?: string
+  namespace?: string
 }
 
 export type GetChildObjectsRes = {

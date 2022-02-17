@@ -2,6 +2,7 @@ package server
 
 import (
 	"context"
+	"fmt"
 
 	kustomizev1 "github.com/fluxcd/kustomize-controller/api/v1beta2"
 	"github.com/weaveworks/weave-gitops/core/server/types"
@@ -28,9 +29,14 @@ func (as *appServer) AddKustomization(ctx context.Context, msg *pb.AddKustomizat
 		return nil, status.Errorf(codes.Internal, "creating kustomization for app %q: %s", msg.AppName, err.Error())
 	}
 
+	k, err := types.KustomizationToProto(&kust)
+	if err != nil {
+		return nil, fmt.Errorf("converting to proto: %w", err)
+	}
+
 	return &pb.AddKustomizationRes{
 		Success:       true,
-		Kustomization: types.KustomizationToProto(&kust),
+		Kustomization: k,
 	}, nil
 }
 
@@ -49,8 +55,14 @@ func (as *appServer) ListKustomizations(ctx context.Context, msg *pb.ListKustomi
 	}
 
 	var results []*pb.Kustomization
+
 	for _, kustomization := range list.Items {
-		results = append(results, types.KustomizationToProto(&kustomization))
+		k, err := types.KustomizationToProto(&kustomization)
+		if err != nil {
+			return nil, fmt.Errorf("converting to proto: %w", err)
+		}
+
+		results = append(results, k)
 	}
 
 	return &pb.ListKustomizationsRes{

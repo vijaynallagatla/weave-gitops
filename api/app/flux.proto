@@ -19,6 +19,24 @@ option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_swagger) = {
   produces: "apps/json",
 };
 
+// GroupVersionKind represents an objects Kubernetes API type data
+message GroupVersionKind {
+  string group   = 1;
+  string kind    = 2;
+  string version = 3;
+}
+
+// UnstructuredObject is a Kubernetes object of an unknown type
+message UnstructuredObject {
+  GroupVersionKind groupVersionKind = 1;
+  string           name             = 2;
+  string           namespace        = 3;
+  string           uid              = 4;
+  string           status           = 5;
+  repeated Condition conditions = 6;
+}
+
+
 message Kustomization {
   string    namespace               = 1;
   string    name                    = 2;
@@ -29,6 +47,7 @@ message Kustomization {
   string    lastAppliedRevision     = 7;
   string    lastAttemptedRevision   = 8;
   string    lastHandledReconciledAt = 9;
+  repeated GroupVersionKind reconciled_object_kinds         = 10; 
 }
 
 message AddKustomizationReq {

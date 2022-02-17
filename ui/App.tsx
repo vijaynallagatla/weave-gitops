@@ -33,6 +33,7 @@ import AddSource from "./pages/v2/AddSource";
 import Application from "./pages/v2/Application/Application";
 import ApplicationList from "./pages/v2/ApplicationList/ApplicationList";
 import FluxRuntime from "./pages/v2/FluxRuntime";
+import KustomizationDetail from "./pages/v2/KustomizationDetail";
 import KustomizationList from "./pages/v2/KustomizationList";
 import NewApp from "./pages/v2/NewApp";
 import SourcesList from "./pages/v2/SourcesList";
@@ -46,6 +47,14 @@ const withAppName =
 
     return <Cmp appName={params.appName as string} {...rest} />;
   };
+
+function withName(Cmp) {
+  return ({ location, ...rest }) => {
+    const params = qs.parse(location.search);
+
+    return <Cmp name={params.name as string} location={location} {...rest} />;
+  };
+}
 
 export default function App() {
   return (
@@ -147,6 +156,11 @@ export default function App() {
                       exact
                       path={V2Routes.FluxRuntime}
                       component={FluxRuntime}
+                    />
+                    <Route
+                      exact
+                      path={V2Routes.Kustomization}
+                      component={withName(KustomizationDetail)}
                     />
                     <Redirect exact from="/" to={V2Routes.ApplicationList} />
                     <Route exact path="*" component={Error} />

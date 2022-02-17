@@ -414,8 +414,10 @@ func (s *applicationServer) GetReconciledObjects(ctx context.Context, msg *pb.Ge
 			Version: gvk.Version,
 		})
 
-		if err := cl.List(ctx, &list, opts); err != nil {
-			return nil, fmt.Errorf("could not get unstructured list: %s", err)
+		if err := cl.List(ctx, &list, opts, client.InNamespace(msg.AutomationNamespace)); err != nil {
+			s.log.Error(err, "could not get unstructured list")
+			// We probably don't have access to this api object
+			continue
 		}
 
 		result = append(result, list.Items...)
@@ -430,16 +432,27 @@ func (s *applicationServer) GetReconciledObjects(ctx context.Context, msg *pb.Ge
 			return nil, fmt.Errorf("could not get status for %s: %w", obj.GetName(), err)
 		}
 
+		conds := []*pb.Condition{}
+
+		if res.Status == status.CurrentStatus {
+			conds = append(conds, &pb.Condition{
+				Type:    "Ready",
+				Status:  "True",
+				Message: res.Message,
+			})
+		}
+
 		objects = append(objects, &pb.UnstructuredObject{
 			GroupVersionKind: &pb.GroupVersionKind{
 				Group:   obj.GetObjectKind().GroupVersionKind().Group,
 				Version: obj.GetObjectKind().GroupVersionKind().GroupVersion().Version,
 				Kind:    obj.GetKind(),
 			},
-			Name:      obj.GetName(),
-			Namespace: obj.GetNamespace(),
-			Status:    res.Status.String(),
-			Uid:       string(obj.GetUID()),
+			Name:       obj.GetName(),
+			Namespace:  obj.GetNamespace(),
+			Status:     res.Status.String(),
+			Uid:        string(obj.GetUID()),
+			Conditions: conds,
 		})
 	}
 
@@ -460,7 +473,14 @@ func (s *applicationServer) GetChildObjects(ctx context.Context, msg *pb.GetChil
 		Kind:    msg.GroupVersionKind.Kind,
 	})
 
-	if err := cl.List(ctx, &list); err != nil {
+	if err := cl.List(ctx, &list, client.InNamespace(msg.Namespace)); err != nil {
+
+		if apierrors.IsForbidden(err) {
+			s.log.Info(fmt.Sprintf("forbidden on %s", msg.GroupVersionKind.Kind))
+			// The user cannot access this object in this namespace
+			return &pb.GetChildObjectsRes{Objects: []*pb.UnstructuredObject{}}, nil
+		}
+
 		return nil, fmt.Errorf("could not get unstructured object: %s", err)
 	}
 
@@ -484,16 +504,28 @@ Items:
 		if err != nil {
 			return nil, fmt.Errorf("could not get status for %s: %w", obj.GetName(), err)
 		}
+
+		conds := []*pb.Condition{}
+
+		if statusResult.Status == status.CurrentStatus {
+			conds = append(conds, &pb.Condition{
+				Type:    "Ready",
+				Status:  "True",
+				Message: statusResult.Message,
+			})
+		}
+
 		objects = append(objects, &pb.UnstructuredObject{
 			GroupVersionKind: &pb.GroupVersionKind{
 				Group:   obj.GetObjectKind().GroupVersionKind().Group,
 				Version: obj.GetObjectKind().GroupVersionKind().GroupVersion().Version,
 				Kind:    obj.GetKind(),
 			},
-			Name:      obj.GetName(),
-			Namespace: obj.GetNamespace(),
-			Status:    statusResult.Status.String(),
-			Uid:       string(obj.GetUID()),
+			Name:       obj.GetName(),
+			Namespace:  obj.GetNamespace(),
+			Status:     statusResult.Status.String(),
+			Uid:        string(obj.GetUID()),
+			Conditions: conds,
 		})
 	}
 

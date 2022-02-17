@@ -54,6 +54,38 @@
         ]
       }
     },
+    "/v1/child_objects": {
+      "post": {
+        "operationId": "Apps_GetChildObjects",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1GetChildObjectsRes"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1GetChildObjectsReq"
+            }
+          }
+        ],
+        "tags": [
+          "Apps"
+        ]
+      }
+    },
     "/v1/flux_runtime": {
       "get": {
         "operationId": "Apps_ListFluxRuntimeObjects",
@@ -797,6 +829,38 @@
           "Apps"
         ]
       }
+    },
+    "/v1/reconciled_objects": {
+      "post": {
+        "operationId": "Apps_GetReconciledObjects",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/v1GetReconciledObjectsRes"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/v1GetReconciledObjectsReq"
+            }
+          }
+        ],
+        "tags": [
+          "Apps"
+        ]
+      }
     }
   },
   "definitions": {
@@ -808,6 +872,14 @@
         "GCP"
       ],
       "default": "Generic"
+    },
+    "GetReconciledObjectsReqAutomationType": {
+      "type": "string",
+      "enum": [
+        "Kustomization",
+        "Helm"
+      ],
+      "default": "Kustomization"
     },
     "SourceRefKind": {
       "type": "string",
@@ -1036,6 +1108,59 @@
         }
       }
     },
+    "v1GetChildObjectsReq": {
+      "type": "object",
+      "properties": {
+        "groupVersionKind": {
+          "$ref": "#/definitions/v1GroupVersionKind"
+        },
+        "parentUid": {
+          "type": "string"
+        }
+      }
+    },
+    "v1GetChildObjectsRes": {
+      "type": "object",
+      "properties": {
+        "objects": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/v1UnstructuredObject"
+          }
+        }
+      }
+    },
+    "v1GetReconciledObjectsReq": {
+      "type": "object",
+      "properties": {
+        "automationName": {
+          "type": "string"
+        },
+        "automationNamespace": {
+          "type": "string"
+        },
+        "automationKind": {
+          "$ref": "#/definitions/GetReconciledObjectsReqAutomationType"
+        },
+        "kinds": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/v1GroupVersionKind"
+          }
+        }
+      }
+    },
+    "v1GetReconciledObjectsRes": {
+      "type": "object",
+      "properties": {
+        "objects": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/v1UnstructuredObject"
+          }
+        }
+      }
+    },
     "v1GitRepository": {
       "type": "object",
       "properties": {
@@ -1081,6 +1206,21 @@
           "type": "string"
         }
       }
+    },
+    "v1GroupVersionKind": {
+      "type": "object",
+      "properties": {
+        "group": {
+          "type": "string"
+        },
+        "kind": {
+          "type": "string"
+        },
+        "version": {
+          "type": "string"
+        }
+      },
+      "title": "GroupVersionKind represents an objects Kubernetes API type data"
     },
     "v1HelmChart": {
       "type": "object",
@@ -1210,6 +1350,12 @@
         },
         "lastHandledReconciledAt": {
           "type": "string"
+        },
+        "reconciledObjectKinds": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/v1GroupVersionKind"
+          }
         }
       }
     },
@@ -1327,6 +1473,33 @@
           "type": "string"
         }
       }
+    },
+    "v1UnstructuredObject": {
+      "type": "object",
+      "properties": {
+        "groupVersionKind": {
+          "$ref": "#/definitions/v1GroupVersionKind"
+        },
+        "name": {
+          "type": "string"
+        },
+        "namespace": {
+          "type": "string"
+        },
+        "uid": {
+          "type": "string"
+        },
+        "status": {
+          "type": "string"
+        },
+        "conditions": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/v1Condition"
+          }
+        }
+      },
+      "title": "UnstructuredObject is a Kubernetes object of an unknown type"
     }
   }
 }

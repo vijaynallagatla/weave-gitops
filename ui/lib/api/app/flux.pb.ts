@@ -5,6 +5,21 @@
 */
 
 import * as Gitops_serverV1Source from "./source.pb"
+export type GroupVersionKind = {
+  group?: string
+  kind?: string
+  version?: string
+}
+
+export type UnstructuredObject = {
+  groupVersionKind?: GroupVersionKind
+  name?: string
+  namespace?: string
+  uid?: string
+  status?: string
+  conditions?: Gitops_serverV1Source.Condition[]
+}
+
 export type Kustomization = {
   namespace?: string
   name?: string
@@ -15,6 +30,7 @@ export type Kustomization = {
   lastAppliedRevision?: string
   lastAttemptedRevision?: string
   lastHandledReconciledAt?: string
+  reconciledObjectKinds?: GroupVersionKind[]
 }
 
 export type AddKustomizationReq = {

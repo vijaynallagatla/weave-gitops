@@ -1,10 +1,15 @@
 package types
 
 import (
+	"fmt"
+	"strings"
+
 	"github.com/fluxcd/kustomize-controller/api/v1beta2"
+	kustomizev2 "github.com/fluxcd/kustomize-controller/api/v1beta2"
 	"github.com/fluxcd/source-controller/api/v1beta1"
 	pb "github.com/weaveworks/weave-gitops/pkg/api/app"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"sigs.k8s.io/cli-utils/pkg/object"
 )
 
 func ProtoToKustomization(kustomization *pb.AddKustomizationReq) v1beta2.Kustomization {
@@ -32,7 +37,7 @@ func ProtoToKustomization(kustomization *pb.AddKustomizationReq) v1beta2.Kustomi
 	}
 }
 
-func KustomizationToProto(kustomization *v1beta2.Kustomization) *pb.Kustomization {
+func KustomizationToProto(kustomization *v1beta2.Kustomization) (*pb.Kustomization, error) {
 	var kind pb.SourceRef_Kind
 
 	switch kustomization.Spec.SourceRef.Kind {
@@ -42,6 +47,11 @@ func KustomizationToProto(kustomization *v1beta2.Kustomization) *pb.Kustomizatio
 		kind = pb.SourceRef_HelmRepository
 	case v1beta1.BucketKind:
 		kind = pb.SourceRef_Bucket
+	}
+
+	inv, err := getKustomizeInventory(kustomization)
+	if err != nil {
+		return nil, err
 	}
 
 	return &pb.Kustomization{
@@ -61,5 +71,37 @@ func KustomizationToProto(kustomization *v1beta2.Kustomization) *pb.Kustomizatio
 		LastAppliedRevision:     kustomization.Status.LastAppliedRevision,
 		LastAttemptedRevision:   kustomization.Status.LastAttemptedRevision,
 		LastHandledReconciledAt: kustomization.Status.LastHandledReconcileAt,
+		ReconciledObjectKinds:   inv,
+	}, nil
+}
+
+func getKustomizeInventory(kustomization *kustomizev2.Kustomization) ([]*pb.GroupVersionKind, error) {
+	if kustomization.Status.Inventory == nil {
+		return nil, nil
 	}
+
+	var gvk []*pb.GroupVersionKind
+
+	found := map[string]bool{}
+
+	for _, entry := range kustomization.Status.Inventory.Entries {
+		objMeta, err := object.ParseObjMetadata(entry.ID)
+		if err != nil {
+			return gvk, fmt.Errorf("invalid inventory item '%s', error: %w", entry.ID, err)
+		}
+
+		idstr := strings.Join([]string{objMeta.GroupKind.Group, entry.Version, objMeta.GroupKind.Kind}, "_")
+
+		if !found[idstr] {
+			found[idstr] = true
+
+			gvk = append(gvk, &pb.GroupVersionKind{
+				Group:   objMeta.GroupKind.Group,
+				Version: entry.Version,
+				Kind:    objMeta.GroupKind.Kind,
+			})
+		}
+	}
+
+	return gvk, nil
 }

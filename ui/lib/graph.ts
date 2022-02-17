@@ -7,6 +7,7 @@ import {
   GroupVersionKind,
   UnstructuredObject,
 } from "./api/applications/applications.pb";
+import { WeGONamespace } from "./types";
 
 export type UnstructuredObjectWithParent = UnstructuredObject & {
   parentUid?: string;
@@ -48,6 +49,7 @@ export const getChildrenRecursive = async (
       const res = await appsClient.GetChildObjects({
         parentUid: object.uid,
         groupVersionKind: child,
+        namespace: WeGONamespace,
       });
 
       for (let q = 0; q < res.objects.length; q++) {

@@ -1,4 +1,3 @@
-import _ from "lodash";
 import * as React from "react";
 import styled from "styled-components";
 import ActionBar from "../components/ActionBar";
@@ -22,7 +21,6 @@ import {
   SyncApplicationResponse,
   UnstructuredObject,
 } from "../lib/api/applications/applications.pb";
-import { getChildren } from "../lib/graph";
 import { PageRoute } from "../lib/types";
 import { formatURL } from "../lib/utils";
 
@@ -71,18 +69,16 @@ function ApplicationDetail({ className, name }: Props) {
   }, [name, syncRes]);
 
   React.useEffect(() => {
-    if (!res) {
-      return;
-    }
-
-    const uniqKinds = _.uniqBy(res.application.reconciledObjectKinds, "kind");
-    if (uniqKinds.length === 0) {
-      return;
-    }
-
-    getChildren(applicationsClient, res.application, uniqKinds).then((objs) =>
-      setReconciledObjects(objs)
-    );
+    // if (!res) {
+    //   return;
+    // }
+    // const uniqKinds = _.uniqBy(res.application.reconciledObjectKinds, "kind");
+    // if (uniqKinds.length === 0) {
+    //   return;
+    // }
+    // getChildren(applicationsClient, res.application, uniqKinds).then((objs) =>
+    //   setReconciledObjects(objs)
+    // );
   }, [res]);
 
   React.useEffect(() => {

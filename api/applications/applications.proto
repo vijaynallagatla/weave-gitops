@@ -296,6 +296,7 @@ message UnstructuredObject {
     string           namespace        = 3;
     string           uid              = 4;
     string           status           = 5;
+    repeated Condition conditions = 6;
 }
 
 message GetReconciledObjectsReq {
@@ -318,6 +319,7 @@ message GetReconciledObjectsRes {
 message GetChildObjectsReq {
     GroupVersionKind groupVersionKind = 1;
     string           parentUid        = 2;
+    string namespace = 3;
 }
 
 message GetChildObjectsRes {
