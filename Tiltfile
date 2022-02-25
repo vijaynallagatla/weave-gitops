@@ -28,4 +28,4 @@ k8s_yaml([
     'tools/wego-app-dev.yaml',
 ])
 
-k8s_resource('wego-app', port_forwards='9443', resource_deps=['gitops-server'])
+k8s_resource('wego-app', port_forwards='9000', resource_deps=['gitops-server'])
