@@ -76,6 +76,8 @@ require (
 	gopkg.in/square/go-jose.v2 v2.5.1
 )
 
+require github.com/freshautomations/stoml v0.7.0 // indirect
+
 require (
 	cloud.google.com/go v0.93.3 // indirect
 	github.com/Azure/go-ansiterm v0.0.0-20210617225240-d185dfc1b5a1 // indirect
