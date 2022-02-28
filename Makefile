@@ -45,7 +45,7 @@ local-registry:
 	./tools/deploy-local-registry.sh
 
 local-docker-image:
-	DOCKER_BUILDKIT=1 docker build -t localhost:5001/wego-app:latest . --build-arg FLUX_VERSION=$(FLUX_VERSION)
+	DOCKER_BUILDKIT=1 docker build -t localhost:5001/wego-app:latest . -f gitops-server.dockerfile --build-arg FLUX_VERSION=$(FLUX_VERSION)
 	docker push localhost:5001/wego-app:latest
 
 test: dependencies
