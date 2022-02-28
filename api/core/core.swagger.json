@@ -463,6 +463,9 @@
           "items": {
             "$ref": "#/definitions/v1Condition"
           }
+        },
+        "bucketName": {
+          "type": "string"
         }
       }
     },
