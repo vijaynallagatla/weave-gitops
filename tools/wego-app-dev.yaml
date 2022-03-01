@@ -20,6 +20,10 @@ spec:
             - containerPort: 9001
               protocol: TCP
           imagePullPolicy: IfNotPresent
+          env:
+            - name: WEAVE_GITOPS_AUTH_ENABLED
+              value: "true"
+
   selector:
     matchLabels:
       app: wego-app
